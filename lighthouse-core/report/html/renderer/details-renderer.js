@@ -550,12 +550,12 @@ class DetailsRenderer {
     }
 
     // Lines are shown as one-indexed.
-    const line = (item.original ? item.original.line : item.line) + 1;
-    const column = item.original ? item.original.column : item.column;
-
-    const file = item.original && item.original.file || '<unmapped>';
-    const originalLocation = item.original && `${file}:${line}:${column}`;
-    const generatedLocation = `${item.url}:${line}:${column}`;
+    const generatedLocation = `${item.url}:${item.line + 1}:${item.column}`;
+    let originalLocation;
+    if (item.original) {
+      const file = item.original.file || '<unmapped>';
+      originalLocation = `${file}:${item.original.line + 1}:${item.original.column}`;
+    }
 
     // First two cases: url is from network.
     if (item.urlProvider === 'network') {
@@ -565,11 +565,10 @@ class DetailsRenderer {
           url: item.url,
           text: originalLocation,
         });
-        element.title =
-          `Location ${generatedLocation} maps to original location ${originalLocation}`;
+        element.title = `maps to generated location ${generatedLocation}`;
       } else {
         element = this.renderTextURL(item.url);
-        this._dom.find('a', element).textContent += `:${line}:${column}`;
+        this._dom.find('a', element).textContent += `:${item.line + 1}:${item.column}`;
       }
 
       return addDevToolsData(element);
