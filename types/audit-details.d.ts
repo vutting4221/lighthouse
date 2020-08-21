@@ -225,6 +225,7 @@ declare global {
         line: number;
         column: number;
         /** The original file location from the source map. */
+        /** The original file location information from the source map. */
         original?: {
           /** The associate file from the map's `sources` array. If missing, could not associate mapping with a specific file ("unmapped" in other tools). */
           file?: string;
