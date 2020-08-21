@@ -276,6 +276,8 @@ declare global {
           }>;
           score?: number,
           had_recent_input?: boolean;
+          compositeFailed?: number;
+          unsupportedProperties?: string[];
         };
         frame?: string;
         name?: string;
@@ -289,6 +291,9 @@ declare global {
       ph: 'B'|'b'|'D'|'E'|'e'|'F'|'I'|'M'|'N'|'n'|'O'|'R'|'S'|'T'|'X';
       s?: 't';
       id?: string;
+      id2?: {
+        local?: string;
+      };
     }
 
     export interface DevToolsJsonTarget {
