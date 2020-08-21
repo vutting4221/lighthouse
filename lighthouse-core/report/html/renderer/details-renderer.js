@@ -553,15 +553,20 @@ class DetailsRenderer {
     const line = (item.original ? item.original.line : item.line) + 1;
     const column = item.original ? item.original.column : item.column;
 
+    const file = item.original && item.original.file || '<unmapped>';
+    const originalLocation = item.original && `${file}:${line}:${column}`;
+    const generatedLocation = `${item.url}:${line}:${column}`;
+
     // First two cases: url is from network.
     if (item.urlProvider === 'network') {
       let element;
-      if (item.original) {
+      if (originalLocation) {
         element = this._renderLink({
           url: item.url,
-          text: `${item.original.file}:${line}:${column}`,
+          text: originalLocation,
         });
-        element.title = `${item.url}:${line}:${column}`;
+        element.title =
+          `Location ${generatedLocation} maps to original location ${originalLocation}`;
       } else {
         element = this.renderTextURL(item.url);
         this._dom.find('a', element).textContent += `:${line}:${column}`;
@@ -572,14 +577,16 @@ class DetailsRenderer {
 
     // Two cases remain:
     // 1) urlProvider === 'comment' && item.original
+    //    -> Show the source filename in text, source mapped URL in tooltip.
     // 2) urlProvider === 'comment' && !item.original
+    //    -> Show the source mapped URL.
 
     let element;
-    if (item.original) {
-      element = this._renderText(`${item.original.file}:${line}:${column} (from source map)`);
-      element.title = `${item.url}:${line}:${column} (from sourceURL)`;
+    if (originalLocation) {
+      element = this._renderText(`${originalLocation} (from source map)`);
+      element.title = `${generatedLocation} (from sourceURL)`;
     } else {
-      element = this._renderText(`${item.url}:${line}:${column} (from sourceURL)`);
+      element = this._renderText(`${generatedLocation} (from sourceURL)`);
     }
 
     return addDevToolsData(element);
