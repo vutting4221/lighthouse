@@ -246,8 +246,7 @@ class ReportUIFeatures {
 
       // create input box
       const filterTemplate = this._dom.cloneTemplate('#tmpl-lh-3p-filter', this._templateContext);
-      const filterInput =
-        /** @type {HTMLInputElement} */ (this._dom.find('input', filterTemplate));
+      const filterInput = this._dom.find('input', filterTemplate, 'input');
       const id = `lh-3p-filter-label--${index}`;
 
       filterInput.id = id;
@@ -527,8 +526,7 @@ class ReportUIFeatures {
    * open a `<details>` element.
    */
   expandAllDetails() {
-    const details = /** @type {Array<HTMLDetailsElement>} */ (this._dom.findAll(
-        '.lh-categories details', this._document));
+    const details = this._dom.findAll('.lh-categories details', this._document, 'details');
     details.map(detail => detail.open = true);
   }
 
@@ -537,8 +535,7 @@ class ReportUIFeatures {
    * open a `<details>` element.
    */
   collapseAllDetails() {
-    const details = /** @type {Array<HTMLDetailsElement>} */ (this._dom.findAll(
-        '.lh-categories details', this._document));
+    const details = this._dom.findAll('.lh-categories details', this._document, 'details');
     details.map(detail => detail.open = false);
   }
 

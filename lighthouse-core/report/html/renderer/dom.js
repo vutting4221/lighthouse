@@ -213,27 +213,42 @@ class DOM {
   /**
    * Guaranteed context.querySelector. Always returns an element or throws if
    * nothing matches query.
+   * @template {string} T
    * @param {string} query
    * @param {ParentNode} context
-   * @return {!HTMLElement}
+   * @param {T=} tagName
+   * @return {HTMLElementByTagName[T]}
    */
-  find(query, context) {
+  find(query, context, tagName) {
     /** @type {?HTMLElement} */
     const result = context.querySelector(query);
     if (result === null) {
       throw new Error(`query ${query} not found`);
+    }
+    if (tagName && result.tagName.toLowerCase() !== tagName) {
+      throw new Error(`expected ${tagName}, but got ${result.tagName.toLowerCase()}`);
     }
     return result;
   }
 
   /**
    * Helper for context.querySelectorAll. Returns an Array instead of a NodeList.
+   * @template {string} T
    * @param {string} query
    * @param {ParentNode} context
-   * @return {!Array<HTMLElement>}
+   * @param {T=} tagName
+   * @return {Array<HTMLElementByTagName[T]>}
    */
-  findAll(query, context) {
-    return Array.from(context.querySelectorAll(query));
+  findAll(query, context, tagName) {
+    const result = /** @type {HTMLElement[]} */ (Array.from(context.querySelectorAll(query)));
+    if (tagName) {
+      for (const el of result) {
+        if (el.tagName.toLowerCase() !== tagName) {
+          throw new Error(`expected ${tagName}, but got ${el.tagName.toLowerCase()}`);
+        }
+      }
+    }
+    return result;
   }
 }
 

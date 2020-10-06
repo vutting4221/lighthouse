@@ -100,7 +100,7 @@ class CategoryRenderer {
       });
     }
 
-    const header = /** @type {HTMLDetailsElement} */ (this.dom.find('details', auditEl));
+    const header = this.dom.find('details', auditEl);
     if (audit.result.details) {
       const elem = this.detailsRenderer.render(audit.result.details);
       if (elem) {
@@ -326,7 +326,7 @@ class CategoryRenderer {
    */
   renderScoreGauge(category, groupDefinitions) { // eslint-disable-line no-unused-vars
     const tmpl = this.dom.cloneTemplate('#tmpl-lh-gauge', this.templateContext);
-    const wrapper = /** @type {HTMLAnchorElement} */ (this.dom.find('.lh-gauge__wrapper', tmpl));
+    const wrapper = this.dom.find('.lh-gauge__wrapper', tmpl, 'a');
     wrapper.href = `#${category.id}`;
 
     if (Util.isPluginCategory(category.id)) {
