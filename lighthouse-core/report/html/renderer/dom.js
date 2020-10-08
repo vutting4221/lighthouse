@@ -216,7 +216,7 @@ class DOM {
    * @template {string} T
    * @param {string} query
    * @param {ParentNode} context
-   * @param {T=} tagName
+   * @param {T=} tagName Functionally optional, but providing it avoids needing a typecast
    * @return {HTMLElementByTagName[T]}
    */
   find(query, context, tagName) {
@@ -225,8 +225,8 @@ class DOM {
     if (result === null) {
       throw new Error(`query ${query} not found`);
     }
-    if (tagName && result.tagName.toLowerCase() !== tagName) {
-      throw new Error(`expected ${tagName}, but got ${result.tagName.toLowerCase()}`);
+    if (tagName && result.tagName !== tagName.toUpperCase()) {
+      throw new Error(`expected ${tagName.toUpperCase()}, but got ${result.tagName}`);
     }
     return result;
   }
@@ -236,15 +236,15 @@ class DOM {
    * @template {string} T
    * @param {string} query
    * @param {ParentNode} context
-   * @param {T=} tagName
+   * @param {T=} tagName Functionally optional, but providing it avoids needing a typecast
    * @return {Array<HTMLElementByTagName[T]>}
    */
   findAll(query, context, tagName) {
     const result = /** @type {HTMLElement[]} */ (Array.from(context.querySelectorAll(query)));
     if (tagName) {
       for (const el of result) {
-        if (el.tagName.toLowerCase() !== tagName) {
-          throw new Error(`expected ${tagName}, but got ${el.tagName.toLowerCase()}`);
+        if (el.tagName !== tagName.toUpperCase()) {
+          throw new Error(`expected ${tagName.toUpperCase()}, but got ${el.tagName}`);
         }
       }
     }

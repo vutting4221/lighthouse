@@ -138,8 +138,7 @@ class ReportUIFeatures {
     const hasMetricError = report.categories.performance && report.categories.performance.auditRefs
       .some(audit => Boolean(audit.group === 'metrics' && report.audits[audit.id].errorMessage));
     if (hasMetricError) {
-      const toggleInputEl = /** @type {HTMLInputElement} */ (
-        this._dom.find('.lh-metrics-toggle__input', this._document));
+      const toggleInputEl = this._dom.find('.lh-metrics-toggle__input', this._document, 'input');
       toggleInputEl.checked = true;
     }
 
