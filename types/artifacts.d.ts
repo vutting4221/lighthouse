@@ -596,6 +596,7 @@ declare global {
         timeOrigin: number;
         firstPaint?: number;
         firstContentfulPaint: number;
+        firstContentfulPaintAllFrames: number;
         firstMeaningfulPaint?: number;
         largestContentfulPaint?: number;
         largestContentfulPaintAllFrames?: number;
@@ -623,6 +624,8 @@ declare global {
         firstPaintEvt?: TraceEvent;
         /** The trace event marking firstContentfulPaint, if it was found. */
         firstContentfulPaintEvt: TraceEvent;
+        /** The trace event marking firstContentfulPaint from all frames, if it was found. */
+        firstContentfulPaintAllFramesEvt: TraceEvent;
         /** The trace event marking firstMeaningfulPaint, if it was found. */
         firstMeaningfulPaintEvt?: TraceEvent;
         /** The trace event marking largestContentfulPaint, if it was found. */
@@ -669,6 +672,8 @@ declare global {
       export interface TimingSummary {
         firstContentfulPaint: number;
         firstContentfulPaintTs: number | undefined;
+        firstContentfulPaintAllFrames: number;
+        firstContentfulPaintAllFramesTs: number | undefined;
         firstMeaningfulPaint: number;
         firstMeaningfulPaintTs: number | undefined;
         largestContentfulPaint: number | undefined;
@@ -697,6 +702,8 @@ declare global {
         observedFirstPaintTs: number | undefined;
         observedFirstContentfulPaint: number;
         observedFirstContentfulPaintTs: number;
+        observedFirstContentfulPaintAllFrames: number;
+        observedFirstContentfulPaintAllFramesTs: number;
         observedFirstMeaningfulPaint: number | undefined;
         observedFirstMeaningfulPaintTs: number | undefined;
         observedLargestContentfulPaint: number | undefined;

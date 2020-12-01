@@ -49,6 +49,19 @@ describe('TraceOfTabComputed', () => {
         ts: 225414670885,
         tts: 866570,
       },
+      firstContentfulPaintAllFramesEvt: {
+        args: {
+          frame: '0x25a638821e30',
+        },
+        cat: 'loading,rail,devtools.timeline',
+        name: 'firstContentfulPaint',
+        ph: 'I',
+        pid: 44277,
+        s: 'p',
+        tid: 775,
+        ts: 225414670885,
+        tts: 866570,
+      },
       firstMeaningfulPaintEvt: {
         args: {
           frame: '0x25a638821e30',
@@ -109,6 +122,7 @@ describe('TraceOfTabComputed', () => {
       timestamps: {
         domContentLoaded: 225414732309,
         firstContentfulPaint: 225414670885,
+        firstContentfulPaintAllFrames: 225414670885,
         firstMeaningfulPaint: 225414955343,
         firstPaint: 225414670868,
         load: 225416370913,
@@ -118,6 +132,7 @@ describe('TraceOfTabComputed', () => {
       timings: {
         domContentLoaded: 560.294,
         firstContentfulPaint: 498.87,
+        firstContentfulPaintAllFrames: 498.87,
         firstMeaningfulPaint: 783.328,
         firstPaint: 498.853,
         load: 2198.898,
