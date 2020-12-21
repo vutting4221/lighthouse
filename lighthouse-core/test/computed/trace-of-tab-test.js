@@ -119,6 +119,7 @@ describe('TraceOfTabComputed', () => {
         tts: 455539,
       },
       frames: [],
+      frameTreeEvents: [],
       timestamps: {
         domContentLoaded: 225414732309,
         firstContentfulPaint: 225414670885,
