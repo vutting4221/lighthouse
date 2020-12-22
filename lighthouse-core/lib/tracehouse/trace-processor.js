@@ -631,7 +631,7 @@ class TraceProcessor {
     const frameTimings = this.computeKeyTimingsForFrame(frameEvents, {timeOriginEvt});
 
     // Compute FCP for all frames.
-    const fcpAllFramesEvt = keyEvents.find(
+    const fcpAllFramesEvt = frameTreeEvents.find(
       e => e.name === 'firstContentfulPaint' && e.ts > timeOriginEvt.ts
     );
 
