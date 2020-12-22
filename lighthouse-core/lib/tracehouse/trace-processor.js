@@ -631,9 +631,12 @@ class TraceProcessor {
     const frameTimings = this.computeKeyTimingsForFrame(frameEvents, {timeOriginEvt});
 
     // Compute FCP for all frames.
+    // In practice, this will always be defined when there is a main frame FCP.
+    // Unfortunately, many test traces do not include FrameCommittedInBrowser events due to minification.
+    // The fallback to the main frame FCP is added so these tests do throw a NO_FCP error.
     const fcpAllFramesEvt = frameTreeEvents.find(
       e => e.name === 'firstContentfulPaint' && e.ts > timeOriginEvt.ts
-    );
+    ) || frameTimings.firstContentfulPaintEvt;
 
     // Compute LCP for all frames.
     const lcpAllFramesEvt = this.computeValidLCPAllFrames(frameTreeEvents, timeOriginEvt).lcp;
