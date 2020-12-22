@@ -1453,6 +1453,8 @@
           {
             "firstContentfulPaint": 3969,
             "firstContentfulPaintTs": 185607289047,
+            "firstContentfulPaintAllFrames": 3969,
+            "firstContentfulPaintAllFramesTs": 185607289047,
             "firstMeaningfulPaint": 3969,
             "firstMeaningfulPaintTs": 185607289048,
             "largestContentfulPaint": 4927,
@@ -1476,6 +1478,8 @@
             "observedFirstPaintTs": 185607289043,
             "observedFirstContentfulPaint": 3969,
             "observedFirstContentfulPaintTs": 185607289047,
+            "observedFirstContentfulPaintAllFrames": 3969,
+            "observedFirstContentfulPaintAllFramesTs": 185607289047,
             "observedFirstMeaningfulPaint": 3969,
             "observedFirstMeaningfulPaintTs": 185607289048,
             "observedLargestContentfulPaint": 4927,
@@ -6230,6 +6234,12 @@
       {
         "startTime": 0,
         "name": "lh:computed:TimingSummary",
+        "duration": 100,
+        "entryType": "measure"
+      },
+      {
+        "startTime": 0,
+        "name": "lh:computed:FirstContentfulPaintAllFrames",
         "duration": 100,
         "entryType": "measure"
       },
