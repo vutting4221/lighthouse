@@ -20,12 +20,19 @@
 
 /** @typedef {import('./dom.js')} DOM */
 
+// Convenience types for localized AuditDetails.
+/** @typedef {LH.FormattedIcu<LH.Audit.Details>} AuditDetails */
+/** @typedef {LH.FormattedIcu<LH.Audit.Details.Opportunity>} OpportunityTable */
+/** @typedef {LH.FormattedIcu<LH.Audit.Details.Table>} Table */
+/** @typedef {LH.FormattedIcu<LH.Audit.Details.TableItem>} TableItem */
+/** @typedef {LH.FormattedIcu<LH.Audit.Details.ItemValue>} TableItemValue */
+
 const URL_PREFIXES = ['http://', 'https://', 'data:'];
 
 class DetailsRenderer {
   /**
    * @param {DOM} dom
-   * @param {{fullPageScreenshot?: LH.Audit.Details.FullPageScreenshot}} [options]
+   * @param {{fullPageScreenshot?: LH.Artifacts.FullPageScreenshot}} [options]
    */
   constructor(dom, options = {}) {
     this._dom = dom;
@@ -43,7 +50,7 @@ class DetailsRenderer {
   }
 
   /**
-   * @param {LH.Audit.Details} details
+   * @param {AuditDetails} details
    * @return {Element|null}
    */
   render(details) {
@@ -112,7 +119,7 @@ class DetailsRenderer {
     try {
       const parsed = Util.parseURL(url);
       displayedPath = parsed.file === '/' ? parsed.origin : parsed.file;
-      displayedHost = parsed.file === '/' ? '' : `(${parsed.hostname})`;
+      displayedHost = parsed.file === '/' || parsed.hostname === '' ? '' : `(${parsed.hostname})`;
       title = url;
     } catch (e) {
       displayedPath = url;
@@ -148,7 +155,9 @@ class DetailsRenderer {
 
     if (!url || !allowedProtocols.includes(url.protocol)) {
       // Fall back to just the link text if invalid or protocol not allowed.
-      return this._renderText(details.text);
+      const element = this._renderText(details.text);
+      element.classList.add('lh-link');
+      return element;
     }
 
     const a = this._dom.createElement('a');
@@ -156,7 +165,7 @@ class DetailsRenderer {
     a.target = '_blank';
     a.textContent = details.text;
     a.href = url.href;
-
+    a.classList.add('lh-link');
     return a;
   }
 
@@ -215,7 +224,7 @@ class DetailsRenderer {
    * Render a details item value for embedding in a table. Renders the value
    * based on the heading's valueType, unless the value itself has a `type`
    * property to override it.
-   * @param {LH.Audit.Details.ItemValue} value
+   * @param {TableItemValue} value
    * @param {LH.Audit.Details.OpportunityColumnHeading} heading
    * @return {Element|null}
    */
@@ -305,8 +314,8 @@ class DetailsRenderer {
    * Get the headings of a table-like details object, converted into the
    * OpportunityColumnHeading type until we have all details use the same
    * heading format.
-   * @param {LH.Audit.Details.Table|LH.Audit.Details.Opportunity} tableLike
-   * @return {Array<LH.Audit.Details.OpportunityColumnHeading>}
+   * @param {Table|OpportunityTable} tableLike
+   * @return {OpportunityTable['headings']}
    */
   _getCanonicalizedHeadingsFromTable(tableLike) {
     if (tableLike.type === 'opportunity') {
@@ -320,8 +329,8 @@ class DetailsRenderer {
    * Get the headings of a table-like details object, converted into the
    * OpportunityColumnHeading type until we have all details use the same
    * heading format.
-   * @param {LH.Audit.Details.TableColumnHeading} heading
-   * @return {LH.Audit.Details.OpportunityColumnHeading}
+   * @param {Table['headings'][number]} heading
+   * @return {OpportunityTable['headings'][number]}
    */
   _getCanonicalizedHeading(heading) {
     let subItemsHeading;
@@ -379,7 +388,7 @@ class DetailsRenderer {
   }
 
   /**
-   * @param {LH.Audit.Details.OpportunityItem | LH.Audit.Details.TableItem} item
+   * @param {TableItem} item
    * @param {(LH.Audit.Details.OpportunityColumnHeading | null)[]} headings
    */
   _renderTableRow(item, headings) {
@@ -416,7 +425,7 @@ class DetailsRenderer {
   /**
    * Renders one or more rows from a details table item. A single table item can
    * expand into multiple rows, if there is a subItemsHeading.
-   * @param {LH.Audit.Details.OpportunityItem | LH.Audit.Details.TableItem} item
+   * @param {TableItem} item
    * @param {LH.Audit.Details.OpportunityColumnHeading[]} headings
    */
   _renderTableRowsFromItem(item, headings) {
@@ -438,7 +447,7 @@ class DetailsRenderer {
   }
 
   /**
-   * @param {LH.Audit.Details.Table|LH.Audit.Details.Opportunity} details
+   * @param {OpportunityTable|Table} details
    * @return {Element}
    */
   _renderTable(details) {
@@ -512,19 +521,21 @@ class DetailsRenderer {
     if (item.selector) element.setAttribute('data-selector', item.selector);
     if (item.snippet) element.setAttribute('data-snippet', item.snippet);
 
-    if (!item.boundingRect || !this._fullPageScreenshot) {
-      return element;
-    }
+    if (!this._fullPageScreenshot) return element;
+
+    const rect =
+      (item.lhId ? this._fullPageScreenshot.nodes[item.lhId] : null) || item.boundingRect;
+    if (!rect) return element;
 
     const maxThumbnailSize = {width: 147, height: 100};
     const elementScreenshot = ElementScreenshotRenderer.render(
       this._dom,
       this._templateContext,
-      this._fullPageScreenshot,
-      item.boundingRect,
+      this._fullPageScreenshot.screenshot,
+      rect,
       maxThumbnailSize
     );
-    element.prepend(elementScreenshot);
+    if (elementScreenshot) element.prepend(elementScreenshot);
 
     return element;
   }
@@ -539,16 +550,6 @@ class DetailsRenderer {
       return null;
     }
 
-    /** @param {HTMLElement} el */
-    function addDevToolsData(el) {
-      el.classList.add('lh-source-location');
-      el.setAttribute('data-source-url', item.url);
-      // DevTools expects zero-indexed lines.
-      el.setAttribute('data-source-line', String(item.line));
-      el.setAttribute('data-source-column', String(item.column));
-      return el;
-    }
-
     // Lines are shown as one-indexed.
     const generatedLocation = `${item.url}:${item.line + 1}:${item.column}`;
     let originalLocation;
@@ -557,38 +558,33 @@ class DetailsRenderer {
       originalLocation = `${file}:${item.original.line + 1}:${item.original.column}`;
     }
 
-    // First two cases: url is from network.
-    if (item.urlProvider === 'network') {
-      let element;
-      if (originalLocation) {
-        element = this._renderLink({
-          url: item.url,
-          text: originalLocation,
-        });
-        element.title = `maps to generated location ${generatedLocation}`;
-      } else {
-        element = this.renderTextURL(item.url);
-        this._dom.find('a', element).textContent += `:${item.line + 1}:${item.column}`;
-      }
-
-      return addDevToolsData(element);
-    }
-
-    // Two cases remain:
-    // 1) urlProvider === 'comment' && item.original
-    //    -> Show the source filename in text, source mapped URL in tooltip.
-    // 2) urlProvider === 'comment' && !item.original
-    //    -> Show the source mapped URL.
-
+    // We render slightly differently based on presence of source map and provenance of URL.
     let element;
-    if (originalLocation) {
+    if (item.urlProvider === 'network' && originalLocation) {
+      element = this._renderLink({
+        url: item.url,
+        text: originalLocation,
+      });
+      element.title = `maps to generated location ${generatedLocation}`;
+    } else if (item.urlProvider === 'network' && !originalLocation) {
+      element = this.renderTextURL(item.url);
+      this._dom.find('.lh-link', element).textContent += `:${item.line + 1}:${item.column}`;
+    } else if (item.urlProvider === 'comment' && originalLocation) {
       element = this._renderText(`${originalLocation} (from source map)`);
       element.title = `${generatedLocation} (from sourceURL)`;
-    } else {
+    } else if (item.urlProvider === 'comment' && !originalLocation) {
       element = this._renderText(`${generatedLocation} (from sourceURL)`);
+    } else {
+      return null;
     }
 
-    return addDevToolsData(element);
+    element.classList.add('lh-source-location');
+    element.setAttribute('data-source-url', item.url);
+    // DevTools expects zero-indexed lines.
+    element.setAttribute('data-source-line', String(item.line));
+    element.setAttribute('data-source-column', String(item.column));
+
+    return element;
   }
 
   /**

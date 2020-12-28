@@ -5,6 +5,8 @@
  */
 'use strict';
 
+/* global getNodeDetails */
+
 const Gatherer = require('./gatherer.js');
 const pageFunctions = require('../../lib/page-functions.js');
 
@@ -26,6 +28,8 @@ function collectIFrameElements() {
       clientRect: {top, bottom, left, right, width, height},
       // @ts-expect-error - put into scope via stringification
       isPositionFixed: isPositionFixed(node), // eslint-disable-line no-undef
+      // @ts-expect-error - getNodeDetails put into scope via stringification
+      node: getNodeDetails(node),
     };
   });
 }
@@ -39,15 +43,15 @@ class IFrameElements extends Gatherer {
   async afterPass(passContext) {
     const driver = passContext.driver;
 
-    const expression = `(() => {
-      ${pageFunctions.getOuterHTMLSnippetString};
-      ${pageFunctions.getElementsInDocumentString};
-      ${pageFunctions.isPositionFixedString};
-      return (${collectIFrameElements})();
-    })()`;
-
-    /** @type {LH.Artifacts['IFrameElements']} */
-    const iframeElements = await driver.evaluateAsync(expression, {useIsolation: true});
+    const iframeElements = await driver.evaluate(collectIFrameElements, {
+      args: [],
+      useIsolation: true,
+      deps: [
+        pageFunctions.getElementsInDocumentString,
+        pageFunctions.isPositionFixedString,
+        pageFunctions.getNodeDetailsString,
+      ],
+    });
     return iframeElements;
   }
 }

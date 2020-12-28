@@ -63,14 +63,12 @@ declare global {
       }
 
       /**
-       * A screenshot of the entire page, including width and height information.
-       * Used for element screenshots.
+       * A screenshot of the entire page, including width and height information,
+       * and the locations of interesting nodes.
+       * Used by element screenshots renderer.
        */
-      export interface FullPageScreenshot {
+      export interface FullPageScreenshot extends LH.Artifacts.FullPageScreenshot {
         type: 'full-page-screenshot';
-        data: string;
-        width: number;
-        height: number;
       }
 
       export interface Table {
@@ -103,7 +101,7 @@ declare global {
       type ItemValueType = 'bytes' | 'code' | 'link' | 'ms' | 'multi' | 'node' | 'source-location' | 'numeric' | 'text' | 'thumbnail' | 'timespanMs' | 'url';
 
       /** Possible types of values found within table items. */
-      type ItemValue = string | number | boolean | DebugData | NodeValue | SourceLocationValue | LinkValue | UrlValue | CodeValue | NumericValue | TableSubItems;
+      type ItemValue = string | number | boolean | DebugData | NodeValue | SourceLocationValue | LinkValue | UrlValue | CodeValue | NumericValue | IcuMessage | TableSubItems;
 
       // TODO: drop TableColumnHeading, rename OpportunityColumnHeading to TableColumnHeading and
       // use that for all table-like audit details.
@@ -117,7 +115,7 @@ declare global {
          */
         key: string|null;
         /** Readable text label of the field. */
-        text: string;
+        text: IcuMessage | string;
         /**
          * The data format of the column of values being described. Usually
          * those values will be primitives rendered as this type, but the values
@@ -149,7 +147,7 @@ declare global {
          */
         key: string|null;
         /** Readable text label of the field. */
-        label: string;
+        label: IcuMessage | string;
         /**
          * The data format of the column of values being described. Usually
          * those values will be primitives rendered as this type, but the values
@@ -183,7 +181,7 @@ declare global {
        */
       export interface CodeValue {
         type: 'code';
-        value: string;
+        value: IcuMessage | string;
       }
 
       /**
@@ -203,6 +201,8 @@ declare global {
        */
       export interface NodeValue {
         type: 'node';
+        /** Unique identifier. */
+        lhId?: string;
         path?: string;
         selector?: string;
         boundingRect?: Artifacts.Rect;
@@ -218,10 +218,14 @@ declare global {
        */
       export interface SourceLocationValue {
         type: 'source-location';
-        /** urls from the network are always valid urls. otherwise, urls come from either a comment or header, and may not be well-formed. */
+        /** urls from the network are always valid urls. otherwise, urls come from either a comment or header (see urlProvider), and may not be well-formed. */
         url: string;
-        /** 'network' when the url is the actual, observed resource url. 'comment' when the url comes from a sourceMapURL comment or X-SourceMap header */
+        /**
+         * - `network` when the url is the actual, observed resource url.
+         * - `comment` when the url comes from a sourceMapURL comment or X-SourceMap header
+         */
         urlProvider: 'network' | 'comment';
+        /** Zero-indexed. */
         line: number;
         column: number;
         /** The original file location from the source map. */
