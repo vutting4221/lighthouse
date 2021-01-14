@@ -222,7 +222,7 @@ declare global {
         url: string;
         /**
          * - `network` when the url is the actual, observed resource url.
-         * - `comment` when the url comes from a sourceMapURL comment or X-SourceMap header
+         * - `comment` when the url comes from a sourceURL comment.
          */
         urlProvider: 'network' | 'comment';
         /** Zero-indexed. */
