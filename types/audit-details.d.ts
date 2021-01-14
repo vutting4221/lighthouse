@@ -218,11 +218,11 @@ declare global {
        */
       export interface SourceLocationValue {
         type: 'source-location';
-        /** urls from the network are always valid urls. otherwise, urls come from either a comment or header (see urlProvider), and may not be well-formed. */
+        /** A "url" representing the source file. May not be a valid URL, see `urlProvider`. */
         url: string;
         /**
-         * - `network` when the url is the actual, observed resource url.
-         * - `comment` when the url comes from a sourceURL comment.
+         * - `network` when the url is the actual, observed resource url. This is always a valid URL.
+         * - `comment` when the url comes from a sourceURL comment. This could be anything, really.
          */
         urlProvider: 'network' | 'comment';
         /** Zero-indexed. */
