@@ -551,27 +551,27 @@ class DetailsRenderer {
 
     // Lines are shown as one-indexed.
     const generatedLocation = `${item.url}:${item.line + 1}:${item.column}`;
-    let originalLocation;
+    let sourceMappedOriginalLocation;
     if (item.original) {
       const file = item.original.file || '<unmapped>';
-      originalLocation = `${file}:${item.original.line + 1}:${item.original.column}`;
+      sourceMappedOriginalLocation = `${file}:${item.original.line + 1}:${item.original.column}`;
     }
 
     // We render slightly differently based on presence of source map and provenance of URL.
     let element;
-    if (item.urlProvider === 'network' && originalLocation) {
+    if (item.urlProvider === 'network' && sourceMappedOriginalLocation) {
       element = this._renderLink({
         url: item.url,
-        text: originalLocation,
+        text: sourceMappedOriginalLocation,
       });
       element.title = `maps to generated location ${generatedLocation}`;
-    } else if (item.urlProvider === 'network' && !originalLocation) {
+    } else if (item.urlProvider === 'network' && !sourceMappedOriginalLocation) {
       element = this.renderTextURL(item.url);
       this._dom.find('.lh-link', element).textContent += `:${item.line + 1}:${item.column}`;
-    } else if (item.urlProvider === 'comment' && originalLocation) {
-      element = this._renderText(`${originalLocation} (from source map)`);
+    } else if (item.urlProvider === 'comment' && sourceMappedOriginalLocation) {
+      element = this._renderText(`${sourceMappedOriginalLocation} (from source map)`);
       element.title = `${generatedLocation} (from sourceURL)`;
-    } else if (item.urlProvider === 'comment' && !originalLocation) {
+    } else if (item.urlProvider === 'comment' && !sourceMappedOriginalLocation) {
       element = this._renderText(`${generatedLocation} (from sourceURL)`);
     } else {
       return null;

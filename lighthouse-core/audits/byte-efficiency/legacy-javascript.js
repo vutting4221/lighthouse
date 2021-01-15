@@ -407,7 +407,7 @@ class LegacyJavascript extends ByteEfficiencyAudit {
     if (!entry) return;
 
     return {
-      file: entry.sourceURL,
+      file: entry.sourceURL || '',
       line: entry.sourceLineNumber || 0,
       column: entry.sourceColumnNumber || 0,
     };

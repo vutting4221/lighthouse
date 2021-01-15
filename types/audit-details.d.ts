@@ -230,8 +230,8 @@ declare global {
         column: number;
         /** The original file location from the source map. */
         original?: {
-          /** The relevant file from the map's `sources` array. If missing, could not associate mapping with a specific file ("unmapped" in other tools). */
-          file?: string;
+          /** The relevant file from the map's `sources` array. */
+          file: string;
           line: number;
           column: number;
         };
