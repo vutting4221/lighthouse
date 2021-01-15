@@ -6,6 +6,7 @@
 'use strict';
 
 const FirstContentfulPaintAllFrames = require('../../../computed/metrics/first-contentful-paint-all-frames.js'); // eslint-disable-line max-len
+const FirstContentfulPaint = require('../../../computed/metrics/first-contentful-paint.js'); // eslint-disable-line max-len
 const trace = require('../../fixtures/traces/frame-metrics-m89.json');
 const devtoolsLog = require('../../fixtures/traces/frame-metrics-m89.devtools.log.json');
 
@@ -27,7 +28,12 @@ describe('Metrics: FCP all frames', () => {
   it('should compute FCP-AF separate from FCP', async () => {
     const settings = {throttlingMethod: 'provided'};
     const context = {settings, computedCache: new Map()};
+
     const result = await FirstContentfulPaintAllFrames.request(
+      {trace, devtoolsLog, settings},
+      context
+    );
+    const mainFrameResult = await FirstContentfulPaint.request(
       {trace, devtoolsLog, settings},
       context
     );
@@ -36,6 +42,12 @@ describe('Metrics: FCP all frames', () => {
       {
         timestamp: 23466705983,
         timing: 682.853,
+      }
+    );
+    expect(mainFrameResult).toEqual(
+      {
+        timestamp: 23466886143,
+        timing: 863.013,
       }
     );
   });

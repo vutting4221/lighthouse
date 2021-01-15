@@ -619,17 +619,17 @@ class TraceProcessor {
     // Unfortunately, many test traces do not include FrameCommittedInBrowser events due to minification.
     // This ensures there is always a minimal frame tree and events so those tests don't fail.
     let frameTreeEvents = [];
-    if (!frameIdToRootFrameId.has(mainFrameIds.frameId)) {
+    if (frameIdToRootFrameId.has(mainFrameIds.frameId)) {
+      frameTreeEvents = keyEvents.filter(e => {
+        return e.args.frame && frameIdToRootFrameId.get(e.args.frame) === mainFrameIds.frameId;
+      });
+    } else {
       log.warn(
         'trace-of-tab',
         'frameTreeEvents may be incomplete, make sure the trace has FrameCommittedInBrowser events'
       );
       frameIdToRootFrameId.set(mainFrameIds.frameId, mainFrameIds.frameId);
       frameTreeEvents = frameEvents;
-    } else {
-      frameTreeEvents = keyEvents.filter(e => {
-        return e.args.frame && frameIdToRootFrameId.get(e.args.frame) === mainFrameIds.frameId;
-      });
     }
 
     // Compute our time origin to use for all relative timings.
