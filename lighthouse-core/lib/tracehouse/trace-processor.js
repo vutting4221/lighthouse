@@ -620,6 +620,10 @@ class TraceProcessor {
     // This ensures there is always a minimal frame tree and events so those tests don't fail.
     let frameTreeEvents = [];
     if (!frameIdToRootFrameId.has(mainFrameIds.frameId)) {
+      log.warn(
+        'trace-of-tab',
+        'frameTreeEvents may be incomplete, make sure the trace has FrameCommittedInBrowser events'
+      );
       frameIdToRootFrameId.set(mainFrameIds.frameId, mainFrameIds.frameId);
       frameTreeEvents = frameEvents;
     } else {
