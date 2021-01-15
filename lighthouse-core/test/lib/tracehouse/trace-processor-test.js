@@ -225,6 +225,29 @@ describe('TraceProcessor', () => {
         'Event2',
       ]);
     });
+
+    it('frameTreeEvents includes main frame events if no FrameCommittedInBrowser found', () => {
+      const testTrace = createTestTrace({timeOrigin: 0, traceEnd: 2000});
+      const mainFrame = testTrace.traceEvents[0].args.frame;
+      const childFrame = 'CHILDFRAME';
+      const otherMainFrame = 'ANOTHERTAB';
+      const cat = 'loading,rail,devtools.timeline';
+      testTrace.traceEvents.push(
+        /* eslint-disable max-len */
+        {name: 'Event1', cat, args: {frame: mainFrame}},
+        {name: 'Event2', cat, args: {frame: childFrame}},
+        {name: 'Event3', cat, args: {frame: otherMainFrame}}
+        /* eslint-enable max-len */
+      );
+      const trace = TraceProcessor.computeTraceOfTab(testTrace);
+      expect(trace.frameTreeEvents.map(e => e.name)).toEqual([
+        'navigationStart',
+        'domContentLoadedEventEnd',
+        'firstContentfulPaint',
+        'firstMeaningfulPaint',
+        'Event1',
+      ]);
+    });
   });
 
   describe('getMainThreadTopLevelEvents', () => {
@@ -510,6 +533,7 @@ Object {
         const trace = TraceProcessor.computeTraceOfTab(lcpAllFramesTrace);
         expect({
           // Main frame
+          'mainFrameIds.frameId': trace.mainFrameIds.frameId,
           'firstContentfulPaintEvt.ts': trace.firstContentfulPaintEvt.ts,
           'largestContentfulPaintEvt.ts': trace.largestContentfulPaintEvt.ts,
           'timestamps.firstContentfulPaint': trace.timestamps.firstContentfulPaint,
@@ -529,6 +553,7 @@ Object {
             "firstContentfulPaintEvt.ts": 23466886143,
             "largestContentfulPaintAllFramesEvt.ts": 23466705983,
             "largestContentfulPaintEvt.ts": 23466886143,
+            "mainFrameIds.frameId": "207613A6AD77B492759226780A40F6F4",
             "timestamps.firstContentfulPaint": 23466886143,
             "timestamps.firstContentfulPaintAllFrames": 23466705983,
             "timestamps.largestContentfulPaint": 23466886143,

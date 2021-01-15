@@ -6,26 +6,22 @@
 'use strict';
 
 const FirstContentfulPaintAllFrames = require('../../../computed/metrics/first-contentful-paint-all-frames.js'); // eslint-disable-line max-len
-const LanternFirstContentfulPaint = require('../../../computed/metrics/lantern-first-contentful-paint.js'); // eslint-disable-line max-len
 const trace = require('../../fixtures/traces/frame-metrics-m89.json');
 const devtoolsLog = require('../../fixtures/traces/frame-metrics-m89.devtools.log.json');
 
 /* eslint-env jest */
 
 describe('Metrics: FCP all frames', () => {
-  it('should fall back to main frame lantern FCP for simulated throttling', async () => {
+  it('should throw for simulated throttling', async () => {
     const settings = {throttlingMethod: 'simulate'};
     const context = {settings, computedCache: new Map()};
-    const result = await FirstContentfulPaintAllFrames.request(
-      {trace, devtoolsLog, settings},
-      context
-    );
-    const lanternResult = await LanternFirstContentfulPaint.request(
+    const resultPromise = FirstContentfulPaintAllFrames.request(
       {trace, devtoolsLog, settings},
       context
     );
 
-    await expect(result).toEqual(lanternResult);
+    // TODO: Implement lantern solution for FCP all frames.
+    await expect(resultPromise).rejects.toThrow();
   });
 
   it('should compute FCP-AF separate from FCP', async () => {

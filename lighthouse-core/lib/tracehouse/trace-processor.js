@@ -611,15 +611,22 @@ class TraceProcessor {
       });
     const frameIdToRootFrameId = this.resolveRootFrames(frames);
 
-    // Filter to just events matching the frame ID, just to make sure.
+    // Filter to just events matching the main frame ID, just to make sure.
     const frameEvents = keyEvents.filter(e => e.args.frame === mainFrameIds.frameId);
 
     // Filter to just events matching the main frame ID or any child frame IDs.
-    const frameTreeEvents = keyEvents.filter(e => {
-      return e.args &&
-        e.args.frame &&
-        frameIdToRootFrameId.get(e.args.frame) === mainFrameIds.frameId;
-    });
+    // In practice, there should always be FrameCommittedInBrowser events to define the frame tree.
+    // Unfortunately, many test traces do not include FrameCommittedInBrowser events due to minification.
+    // This ensures there is always a minimal frame tree and events so those tests don't fail.
+    let frameTreeEvents = [];
+    if (!frameIdToRootFrameId.has(mainFrameIds.frameId)) {
+      frameIdToRootFrameId.set(mainFrameIds.frameId, mainFrameIds.frameId);
+      frameTreeEvents = frameEvents;
+    } else {
+      frameTreeEvents = keyEvents.filter(e => {
+        return e.args.frame && frameIdToRootFrameId.get(e.args.frame) === mainFrameIds.frameId;
+      });
+    }
 
     // Compute our time origin to use for all relative timings.
     const timeOriginEvt = this.computeTimeOrigin(
@@ -631,12 +638,9 @@ class TraceProcessor {
     const frameTimings = this.computeKeyTimingsForFrame(frameEvents, {timeOriginEvt});
 
     // Compute FCP for all frames.
-    // In practice, this will always be defined when there is a main frame FCP.
-    // Unfortunately, many test traces do not include FrameCommittedInBrowser events due to minification.
-    // The fallback to the main frame FCP is added so these tests do throw a NO_FCP error.
     const fcpAllFramesEvt = frameTreeEvents.find(
       e => e.name === 'firstContentfulPaint' && e.ts > timeOriginEvt.ts
-    ) || frameTimings.firstContentfulPaintEvt;
+    );
 
     // Compute LCP for all frames.
     const lcpAllFramesEvt = this.computeValidLCPAllFrames(frameTreeEvents, timeOriginEvt).lcp;

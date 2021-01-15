@@ -6,20 +6,15 @@
 'use strict';
 
 const makeComputedArtifact = require('../computed-artifact.js');
-const LanternFirstContentfulPaint = require('./lantern-first-contentful-paint.js');
 const ComputedMetric = require('./metric.js');
 
 class FirstContentfulPaintAllFrames extends ComputedMetric {
   /**
-   * @param {LH.Artifacts.MetricComputationData} data
-   * @param {LH.Audit.Context} context
    * @return {Promise<LH.Artifacts.LanternMetric>}
    */
-  static computeSimulatedMetric(data, context) {
-    // Fall back to main frame LCP when using simulated throttling.
-    // Throwing an error causes tests to fail.
+  static computeSimulatedMetric() {
     // TODO: Add support for all frames in lantern.
-    return LanternFirstContentfulPaint.request(data, context);
+    throw new Error('FCP All Frames not implemented in lantern');
   }
 
   /**

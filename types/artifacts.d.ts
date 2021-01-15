@@ -667,7 +667,7 @@ declare global {
       export interface TimingSummary {
         firstContentfulPaint: number;
         firstContentfulPaintTs: number | undefined;
-        firstContentfulPaintAllFrames: number;
+        firstContentfulPaintAllFrames: number | undefined;
         firstContentfulPaintAllFramesTs: number | undefined;
         firstMeaningfulPaint: number;
         firstMeaningfulPaintTs: number | undefined;
